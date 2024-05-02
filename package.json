@@ -6,11 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "start-db": "docker start lms_mysql || docker run --name lms_mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest",
+    "stop-db": "docker stop lms_mysql"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.25.1",
     "@hookform/resolvers": "^3.3.4",
+    "@prisma/client": "^5.13.0",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.0.2",
@@ -35,5 +38,8 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.4.5",
     "zod": "^3.23.5"
+  },
+  "devDependencies": {
+    "prisma": "^5.13.0"
   }
 }
