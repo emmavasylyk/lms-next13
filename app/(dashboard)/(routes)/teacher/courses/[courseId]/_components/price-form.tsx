@@ -4,6 +4,11 @@ import * as z from "zod";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Pencil } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { Course } from "@prisma/client";
 
 import {
   Form,
@@ -12,42 +17,30 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { formatPrice } from "@/lib/format";
 
-import { Course } from "@prisma/client";
-import { Combobox } from "@/components/ui/combobox";
-
-interface CategoryFormProps {
+interface PriceFormProps {
   initialData: Course;
   courseId: string;
-  options: { label: string; value: string }[];
 }
 
 const formSchema = z.object({
-  categoryId: z.string().min(1),
+  price: z.coerce.number(),
 });
 
-const CategoryForm = ({
-  initialData,
-  courseId,
-  options,
-}: CategoryFormProps) => {
+export const PriceForm = ({ initialData, courseId }: PriceFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
+
   const toggleEdit = () => setIsEditing((current) => !current);
 
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      categoryId: initialData?.categoryId || "",
-    },
+    defaultValues: { price: initialData?.price || undefined },
   });
 
   const { isSubmitting, isValid } = form.formState;
@@ -55,29 +48,25 @@ const CategoryForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(`/api/courses/${courseId}`, values);
-      toast.success("Course update");
+      toast.success("Course updated");
       toggleEdit();
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     }
   };
 
-  const selectedOption = options.find(
-    (option) => option.value === initialData.categoryId
-  );
-
   return (
-    <div className="mt-6 rounded-md border bg-slate-100 p-4">
-      <div className="flex items-center justify-between font-medium">
-        Course category
-        <Button onClick={toggleEdit} variant={"ghost"}>
+    <div className="mt-6 border bg-slate-100 rounded-md p-4">
+      <div className="font-medium flex items-center justify-between">
+        Course price
+        <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit category
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit price
             </>
           )}
         </Button>
@@ -85,33 +74,39 @@ const CategoryForm = ({
       {!isEditing && (
         <p
           className={cn(
-            "mt-2 text-sm",
-            !initialData.categoryId && "italic text-slate-500"
+            "text-sm mt-2",
+            !initialData.price && "text-slate-500 italic"
           )}
         >
-          {selectedOption?.label || "No category"}
+          {initialData.price ? formatPrice(initialData.price) : "No price"}
         </p>
       )}
       {isEditing && (
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="mt-4 space-y-4"
+            className="space-y-4 mt-4"
           >
             <FormField
               control={form.control}
-              name="categoryId"
+              name="price"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Combobox options={...options} {...field} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      disabled={isSubmitting}
+                      placeholder="Set a price for your course"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex items-center gap-x-2">
-              <Button type="submit" disabled={isSubmitting || !isValid}>
+              <Button disabled={!isValid || isSubmitting} type="submit">
                 Save
               </Button>
             </div>
@@ -121,5 +116,3 @@ const CategoryForm = ({
     </div>
   );
 };
-
-export default CategoryForm;

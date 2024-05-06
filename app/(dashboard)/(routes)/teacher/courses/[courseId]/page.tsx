@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-import { LayoutDashboard } from "lucide-react";
+import { CircleDollarSign, LayoutDashboard, ListChecks } from "lucide-react";
 
 import { db } from "@/lib/db";
 import { IconBadge } from "@/components/icon-badge";
@@ -9,6 +9,7 @@ import { TitleForm } from "./_components/title-form";
 import { DescriptionForm } from "./_components/description-form";
 import { ImageForm } from "./_components/image-form";
 import CategoryForm from "./_components/category-form";
+import { PriceForm } from "./_components/price-form";
 
 const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
   const { userId } = auth();
@@ -46,8 +47,6 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
 
   const completionText = `(${completedFields}/${totalFields})`;
 
-  // console.log("categories", categories);
-
   return (
     <div className="p-6">
       <div className="flex items-center justify-between">
@@ -76,6 +75,22 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
               value: category.id,
             }))}
           />
+        </div>
+        <div className="space-y-6">
+          <div className="">
+            <div className="flex gap-x-2 items-center">
+              <IconBadge icon={ListChecks} />
+              <h2 className="text-xl">Course chapters</h2>
+            </div>
+            <div className="">TODO: Chapters</div>
+          </div>
+          <div className="">
+            <div className="flex gap-x-2 items-center">
+              <IconBadge icon={CircleDollarSign} />
+              <h2 className="text-xl">Sell your course</h2>
+            </div>
+            <PriceForm initialData={course} courseId={course.id} />
+          </div>
         </div>
       </div>
     </div>
