@@ -21,6 +21,7 @@ import {
 interface ComboboxProps {
   options: { label: string; value: string }[];
   value?: string;
+  // eslint-disable-next-line
   onChange: (value: string) => void;
 }
 
