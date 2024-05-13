@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "start-db": "docker start lms_mysql || docker run --name lms_mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest",
-    "stop-db": "docker stop lms_mysql",
+    "start-db": "docker start lms_postgres || docker run --name lms_postgres -p 5432:5432 -e POSTGRES_PASSWORD=123456 -d postgres:latest",
+    "stop-db": "docker stop lms_postgres",
     "postinstall": "prisma generate"
   },
   "dependencies": {
