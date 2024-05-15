@@ -32,9 +32,9 @@ export async function PATCH(
       },
     });
 
-    const muxData = await db.muxData.findUnique({
+    const muxData = await db.chapter.findUnique({
       where: {
-        chapterId: params.chapterId,
+        id: params.chapterId,
       },
     });
 
