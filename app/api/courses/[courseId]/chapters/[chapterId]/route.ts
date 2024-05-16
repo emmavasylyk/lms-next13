@@ -1,7 +1,17 @@
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
+// import { utapi } from "~/server/uploadthing.ts";
+import { UTApi } from "uploadthing/server";
+export const utapi = new UTApi();
 
 import { db } from "@/lib/db";
+
+function getFileName(url: string) {
+  const urlObject = new URL(url);
+  const pathname = urlObject.pathname;
+  const filename = pathname.substring(pathname.lastIndexOf("/") + 1);
+  return filename;
+}
 
 export async function DELETE(
   req: Request,
@@ -34,6 +44,10 @@ export async function DELETE(
 
     if (!chapter) {
       return new NextResponse("Not Found", { status: 404 });
+    }
+
+    if (chapter.videoUrl) {
+      await utapi.deleteFiles(getFileName(chapter.videoUrl));
     }
 
     const deleteChapter = await db.chapter.delete({
@@ -90,6 +104,25 @@ export async function PATCH(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
+    if (values.videoUrl) {
+      const resultVideo = await db.chapter.findUnique({
+        where: {
+          id: params.chapterId,
+        },
+      });
+
+      if (resultVideo?.videoUrl) {
+        const response = await db.chapter.findUnique({
+          where: {
+            id: params.chapterId,
+          },
+        });
+
+        const videoPrev = getFileName(response?.videoUrl || "");
+        await utapi.deleteFiles(videoPrev);
+      }
+    }
+
     const chapter = await db.chapter.update({
       where: {
         id: params.chapterId,
@@ -99,18 +132,6 @@ export async function PATCH(
         ...values,
       },
     });
-
-    if (values.videoUrl) {
-      const resultVideo = await db.chapter.findUnique({
-        where: {
-          id: params.chapterId,
-        },
-      });
-
-      if (resultVideo?.videoUrl) {
-        // пойти на uploudfiles и удалить предведущее
-      }
-    }
 
     return NextResponse.json(chapter);
   } catch (error) {
