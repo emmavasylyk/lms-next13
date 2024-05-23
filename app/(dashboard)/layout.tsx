@@ -1,3 +1,7 @@
+import { Suspense } from "react";
+
+import Loader from "@/components/loader/loader";
+
 import { Navbar } from "./_components/navbar";
 import { Sidebar } from "./_components/sidebar";
 
@@ -10,7 +14,17 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="hidden md:flex h-full w-56 flex-col fixed inset-y-0 z-50">
         <Sidebar />
       </div>
-      <main className="md:pl-56 pt-[80px] h-full">{children}</main>
+      <main className="h-full pt-[80px] md:pl-56">
+        <Suspense
+          fallback={
+            <div className="flex h-full w-full items-center justify-center">
+              <Loader />
+            </div>
+          }
+        >
+          {children}
+        </Suspense>
+      </main>
     </div>
   );
 };

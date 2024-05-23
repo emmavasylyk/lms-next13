@@ -1,7 +1,9 @@
 import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { db } from "@/lib/db";
+import Loader from "@/components/loader/loader";
 import { getProgress } from "@/actions/get-progress";
 
 import { CourseSidebar } from "./_components/course-sidebar";
@@ -57,7 +59,17 @@ const CourseLayout = async ({
       <div className="hidden md:flex h-full w-80 flex-col fixed inset-y-0 z-50">
         <CourseSidebar course={course} progressCount={progressCount} />
       </div>
-      <main className="md:pl-80 pt-[80px] h-full">{children}</main>
+      <main className="md:pl-80 pt-[80px] h-full">
+        <Suspense
+          fallback={
+            <div className="flex h-full w-full items-center justify-center">
+              <Loader />
+            </div>
+          }
+        >
+          {children}
+        </Suspense>
+      </main>
     </div>
   );
 };
